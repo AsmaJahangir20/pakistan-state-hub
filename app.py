@@ -4,6 +4,7 @@ import sqlite3
 from pathlib import Path
 
 import streamlit as st
+from PIL import Image
 
 from database import get_connection, init_database
 
@@ -12,13 +13,135 @@ from database import get_connection, init_database
 # PAGE CONFIGURATION
 # ============================================================
 
+ASSETS_DIR = Path(__file__).parent / "assets"
+LOGO_PATH = ASSETS_DIR / "logo.png"
+
+_logo_icon = Image.open(LOGO_PATH) if LOGO_PATH.exists() else "🏠"
+
 st.set_page_config(
     page_title="Pakistan Estate Hub",
-    page_icon="🏠",
+    page_icon=_logo_icon,
     layout="wide"
 )
 
 init_database()
+
+
+# ============================================================
+# BRAND THEME (matches logo: black / gold / deep green)
+# ============================================================
+
+GOLD = "#D4AF37"
+GOLD_LIGHT = "#E8C766"
+DEEP_GREEN = "#123524"
+DEEP_GREEN_LIGHT = "#1B4D33"
+NEAR_BLACK = "#0B0B0B"
+PANEL = "#12201A"
+CREAM = "#F1E9D2"
+
+st.markdown(f"""
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Lato:wght@300;400;600&display=swap');
+
+html, body, [class*="css"] {{
+    font-family: 'Lato', sans-serif;
+}}
+
+/* App background */
+.stApp {{
+    background: radial-gradient(circle at top, {DEEP_GREEN} 0%, {NEAR_BLACK} 55%);
+    color: {CREAM};
+}}
+
+/* Sidebar */
+section[data-testid="stSidebar"] {{
+    background: linear-gradient(180deg, {NEAR_BLACK} 0%, {DEEP_GREEN} 140%);
+    border-right: 1px solid {GOLD};
+}}
+section[data-testid="stSidebar"] * {{
+    color: {CREAM} !important;
+}}
+
+/* Headings */
+h1, h2, h3 {{
+    font-family: 'Cormorant Garamond', serif !important;
+    color: {GOLD} !important;
+    letter-spacing: 0.5px;
+}}
+
+/* Captions / dividers */
+hr {{
+    border-color: {GOLD} !important;
+    opacity: 0.4;
+}}
+
+/* Buttons */
+.stButton > button, .stDownloadButton > button {{
+    background: linear-gradient(180deg, {GOLD_LIGHT} 0%, {GOLD} 100%);
+    color: {NEAR_BLACK} !important;
+    border: 1px solid {GOLD};
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+}}
+.stButton > button:hover, .stDownloadButton > button:hover {{
+    background: linear-gradient(180deg, {GOLD} 0%, {DEEP_GREEN_LIGHT} 100%);
+    color: {CREAM} !important;
+    border: 1px solid {GOLD_LIGHT};
+    transform: translateY(-1px);
+}}
+
+/* Inputs */
+.stTextInput input, .stTextArea textarea, .stNumberInput input,
+.stSelectbox div[data-baseweb="select"], .stMultiSelect div[data-baseweb="select"] {{
+    background-color: {PANEL} !important;
+    color: {CREAM} !important;
+    border: 1px solid {GOLD} !important;
+    border-radius: 6px !important;
+}}
+
+/* Tabs */
+.stTabs [data-baseweb="tab"] {{
+    color: {CREAM};
+}}
+.stTabs [aria-selected="true"] {{
+    color: {GOLD} !important;
+    border-bottom-color: {GOLD} !important;
+}}
+
+/* Metric / cards / containers */
+div[data-testid="stMetric"], div[data-testid="stExpander"] {{
+    background-color: {PANEL};
+    border: 1px solid {GOLD};
+    border-radius: 10px;
+    padding: 6px;
+}}
+
+/* Alerts */
+div[data-testid="stAlert"] {{
+    border-left: 4px solid {GOLD};
+}}
+
+/* Sidebar logo container */
+.brand-logo-wrap {{
+    display: flex;
+    justify-content: center;
+    padding: 6px 0 2px 0;
+}}
+.brand-tagline {{
+    text-align: center;
+    color: {GOLD};
+    font-family: 'Cormorant Garamond', serif;
+    letter-spacing: 2px;
+    font-size: 0.85rem;
+    margin-top: -8px;
+    margin-bottom: 8px;
+    opacity: 0.9;
+}}
+
+</style>
+""", unsafe_allow_html=True)
 
 
 # ============================================================
@@ -1050,8 +1173,14 @@ def property_search_page(mode):
 # SIDEBAR
 # ============================================================
 
-st.sidebar.title(
-    "🏠 " + tr("title")
+if LOGO_PATH.exists():
+    st.sidebar.image(str(LOGO_PATH), use_container_width=True)
+else:
+    st.sidebar.title("🏠 " + tr("title"))
+
+st.sidebar.markdown(
+    f"<div class='brand-tagline'>BUY · RENT · SELL · INVEST</div>",
+    unsafe_allow_html=True
 )
 
 lang = st.sidebar.selectbox(
@@ -1214,13 +1343,15 @@ else:
 # MAIN HEADER
 # ============================================================
 
-st.title(
-    "🏠 " + tr("title")
-)
+header_left, header_right = st.columns([1, 6])
 
-st.caption(
-    tr("tagline")
-)
+with header_left:
+    if LOGO_PATH.exists():
+        st.image(str(LOGO_PATH), width=90)
+
+with header_right:
+    st.title(tr("title"))
+    st.caption(tr("tagline"))
 
 st.divider()
 
